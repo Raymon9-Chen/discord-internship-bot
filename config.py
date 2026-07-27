@@ -11,8 +11,10 @@ import os
 # ---------------------------------------------------------------------------
 # Discord (read from environment / GitHub Actions secrets)
 # ---------------------------------------------------------------------------
-DISCORD_BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN", "")
-DISCORD_CHANNEL_ID = os.environ.get("DISCORD_CHANNEL_ID", "")
+# .strip() guards against a stray newline/space pasted into the secret, which
+# would otherwise corrupt the Authorization header ("Bot <token>\n").
+DISCORD_BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN", "").strip()
+DISCORD_CHANNEL_ID = os.environ.get("DISCORD_CHANNEL_ID", "").strip()
 
 # ---------------------------------------------------------------------------
 # What counts as a match
