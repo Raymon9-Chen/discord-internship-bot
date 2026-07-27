@@ -61,6 +61,34 @@ def run_test():
     print("test embed sent -- check your channel.")
 
 
+def _interleave(uids, relevant):
+    """
+    Round-robin the uids across their sources so a capped batch is a MIX
+    (github + greenhouse + ashby + workday ...) instead of draining one giant
+    source first. Preserves each source's internal order.
+    """
+    groups, order = {}, []
+    for uid in uids:
+        src = relevant[uid].source
+        if src not in groups:
+            groups[src] = []
+            order.append(src)
+        groups[src].append(uid)
+
+    out, i = [], 0
+    while len(out) < len(uids):
+        progressed = False
+        for src in order:
+            g = groups[src]
+            if i < len(g):
+                out.append(g[i])
+                progressed = True
+        if not progressed:
+            break
+        i += 1
+    return out
+
+
 def main():
     first_run = is_first_run(config.SEEN_STORE_PATH)
     seen = load_seen(config.SEEN_STORE_PATH)
@@ -78,6 +106,8 @@ def main():
             relevant[job.uid()] = job
 
     new_uids = [uid for uid in relevant if uid not in seen]
+    # Mix sources so each capped batch is diverse, not one list at a time.
+    new_uids = _interleave(new_uids, relevant)
 
     # Cap this run's batch; leftovers roll to the next run (see config).
     cap = config.MAX_NOTIFY_PER_RUN

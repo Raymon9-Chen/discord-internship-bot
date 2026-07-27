@@ -15,31 +15,29 @@ The examples below are illustrative and may drift over time (companies switch
 platforms). Wrong slugs just 404 and are skipped, so a stale entry is harmless.
 """
 
+# All slugs below were verified live against each platform's API (they return
+# active postings). Add more the same way -- a wrong slug just 404s and is
+# skipped, so bad entries are harmless.
 GREENHOUSE_SLUGS = [
-    "stripe",
-    "databricks",
-    "coinbase",
-    "robinhood",
-    "airtable",
+    "databricks", "stripe", "datadog", "mongodb", "samsara", "brex",
+    "verkada", "roblox", "scaleai", "pinterest", "airbnb", "reddit",
+    "gitlab", "figma", "affirm", "lyft", "coinbase", "asana", "instacart",
+    "robinhood", "gusto", "chime", "faire", "twitch", "sofi", "discord",
+    "airtable", "dropbox",
 ]
 
 LEVER_SLUGS = [
-    "plaid",
-    "netflix",
     "palantir",
 ]
 
 ASHBY_SLUGS = [
-    "ramp",
-    "notion",
-    "linear",
+    "openai", "cohere", "notion", "ramp", "vanta", "replit", "clickup",
+    "watershed", "linear", "posthog", "runway",
 ]
 
-# SmartRecruiters: slug is the company id in jobs.smartrecruiters.com/{slug}
+# SmartRecruiters: slug is the company id in jobs.smartrecruiters.com/{slug}.
 SMARTRECRUITERS_SLUGS = [
-    "Square",       # (Block) -- illustrative; verify/adjust
     "Visa",
-    "Bosch",
 ]
 
 # Workday is per-tenant, so each company needs THREE parts, not one slug:
@@ -49,8 +47,8 @@ SMARTRECRUITERS_SLUGS = [
 # How to find them: open a company's Workday careers page and look at the URL:
 #   https://{host}/en-US/{site}/...   and the API lives at
 #   https://{host}/wday/cxs/{tenant}/{site}/jobs
-# The examples below are illustrative and DO drift; a wrong entry just fails and
-# is skipped. Replace with tenants you actually want.
+# The two below are verified working. Tenants DO drift over time; a wrong entry
+# just fails and is skipped. Add more the same way.
 WORKDAY_COMPANIES = [
     {
         "host": "nvidia.wd5.myworkdayjobs.com",
