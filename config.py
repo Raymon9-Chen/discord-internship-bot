@@ -37,7 +37,7 @@ ROLE_KEYWORDS = [
     "data infrastructure",
     # --- Robotics / autonomy / perception ---
     "robotics", "robot", "autonomy", "autonomous", "self-driving",
-    "perception", "slam", "motion planning", "sensor fusion", "controls",
+    "perception", "slam", "motion planning", "sensor fusion", "controls", "VLA"
     # --- Adjacent technical research / engineering ---
     "research engineer", "research scientist", "applied scientist",
     "quantitative", "security engineer", "cybersecurity", "cryptography",
@@ -117,6 +117,12 @@ INDEED_LOCATION = "United States"
 # Persistence
 # ---------------------------------------------------------------------------
 SEEN_STORE_PATH = "seen.json"
+
+# Cap how many postings we notify in a single run. If more than this are new,
+# we send the first N, mark only those as seen, and the rest roll over to the
+# next run -- this paces big catch-up batches so Discord doesn't rate-limit us
+# into a multi-minute crawl. Set to 0 for no cap.
+MAX_NOTIFY_PER_RUN = 40
 
 # On the very first run there is no history, so EVERY current posting would be
 # "new" and spam your channel. When True, the first run records everything as

@@ -49,13 +49,18 @@ def send_jobs(jobs) -> None:
         )
 
     url = f"{API}/channels/{DISCORD_CHANNEL_ID}/messages"
-    for job in jobs:
+    total = len(jobs)
+    for i, job in enumerate(jobs, 1):
         payload = {"embeds": [_embed(job)]}
-        while True:
+        for attempt in range(6):  # bounded: never loop on 429 forever
             resp = requests.post(url, headers=_headers(), json=payload, timeout=30)
-            if resp.status_code == 429:  # rate limited
-                retry = resp.json().get("retry_after", 1)
-                time.sleep(float(retry) + 0.25)
+            if resp.status_code == 429:  # rate limited -- back off and retry
+                try:
+                    retry = float(resp.json().get("retry_after", 1))
+                except ValueError:
+                    retry = 1.0
+                print(f"  rate limited, waiting {retry:.1f}s (attempt {attempt+1})")
+                time.sleep(retry + 0.25)
                 continue
             if not resp.ok:
                 # Surface Discord's own error code/message -- e.g. 50001 Missing
@@ -68,6 +73,10 @@ def send_jobs(jobs) -> None:
                 except ValueError:
                     detail = resp.text[:300]
                 raise RuntimeError(f"Discord {resp.status_code} -> {detail}")
+            print(f"  posted {i}/{total}: {job.company} — {job.title[:60]}")
             break
+        else:
+            # Exhausted retries (persistent 429). Skip rather than hang the run.
+            print(f"  gave up on {i}/{total} after repeated rate limits")
         # Gentle spacing so a big first batch doesn't trip global limits.
         time.sleep(0.6)

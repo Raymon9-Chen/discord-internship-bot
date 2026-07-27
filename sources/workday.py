@@ -26,9 +26,9 @@ import requests
 
 from job import Job
 
-TIMEOUT = 30
+TIMEOUT = 15       # Workday can stall from datacenter IPs -- fail fast
 PAGE = 20          # Workday's hard max per request
-MAX_PAGES = 8      # safety bound: up to 160 matches per tenant per run
+MAX_PAGES = 4      # safety bound: up to 80 matches per tenant per run
 
 
 def _one_company(entry, search_text):

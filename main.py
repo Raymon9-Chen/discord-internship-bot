@@ -78,11 +78,16 @@ def main():
             relevant[job.uid()] = job
 
     new_uids = [uid for uid in relevant if uid not in seen]
-    new_jobs = [relevant[uid] for uid in new_uids]
+
+    # Cap this run's batch; leftovers roll to the next run (see config).
+    cap = config.MAX_NOTIFY_PER_RUN
+    send_uids = new_uids[:cap] if cap else new_uids
+    send = [relevant[uid] for uid in send_uids]
 
     print(
-        f"scanned={total_scanned} relevant={len(relevant)} "
-        f"new={len(new_jobs)} known={len(seen)} first_run={first_run}"
+        f"scanned={total_scanned} relevant={len(relevant)} new={len(new_uids)} "
+        f"sending={len(send)} deferred={len(new_uids) - len(send)} "
+        f"known={len(seen)} first_run={first_run}"
     )
 
     # First-run guard: record everything as seen but DON'T blast the channel.
@@ -92,15 +97,14 @@ def main():
         print("first run: recorded baseline, suppressed notifications")
         return
 
-    if new_jobs:
-        # Oldest-ish first is nicer to read; sources give rough order already.
-        send_jobs(new_jobs)
-        print(f"notified {len(new_jobs)} new posting(s)")
+    if send:
+        send_jobs(send)
+        print(f"notified {len(send)} new posting(s)")
+        # Mark ONLY what we actually sent, so deferred/failed ones retry next run.
+        seen.update(send_uids)
+        save_seen(config.SEEN_STORE_PATH, seen)
     else:
         print("no new postings")
-
-    seen.update(new_uids)
-    save_seen(config.SEEN_STORE_PATH, seen)
 
 
 if __name__ == "__main__":
