@@ -11,6 +11,8 @@ discord.py client alongside this -- this module keeps working unchanged.
 """
 
 import time
+from datetime import datetime, timezone
+
 import requests
 
 from config import DISCORD_BOT_TOKEN, DISCORD_CHANNEL_ID
@@ -37,6 +39,10 @@ def _embed(job: Job) -> dict:
             {"name": "Source", "value": job.source or "—", "inline": True},
         ],
         "footer": {"text": "Summer 2027 Tech Internship"},
+        # Native embed timestamp = when we posted this alert. Discord renders it
+        # in the footer in each viewer's LOCAL timezone with hours:minutes,
+        # e.g. "Summer 2027 Tech Internship • Today at 2:34 PM".
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
